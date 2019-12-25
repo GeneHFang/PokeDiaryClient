@@ -1,4 +1,5 @@
 import React from 'react';
+import Dragger from './component/ClickDragExample';
 import logo from './logo.svg';
 import './App.css';
 
@@ -9,6 +10,7 @@ function App() {
     <div className="App">
      
         <FormContainer />
+        <Dragger />
       
     </div>
   );
