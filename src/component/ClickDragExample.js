@@ -1,18 +1,19 @@
 import React from 'react';
-import clickDrag from 'react-clickdrag';
+import {useDrag, useDrop} from 'react-dnd';
 
 
 const clickDragComp = (props) =>{
 
 
     return (
-        <div>
-            This should be able to be click dragged?
-        </div>
-    )
+        // <ClickDrag>
+        //     This should be able to be click dragged?
+        // </ClickDrag>
+        <p>nothing</p>
+        );
 
 
 
 }
 
-export default clickDrag(clickDragComp, {touch: true});
+export default clickDragComp;
