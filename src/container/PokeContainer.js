@@ -14,10 +14,14 @@ export default class PokeContainer extends React.Component{
 
     state ={
         pokemon: [],
-        pokemonImg: {}
+        pokemonImg: {},
+        currentLocationID: 295 //Route 1
+    }
+    componentDidMount = () =>{
+        this.clickButton();
     }
     
-    componentDidMount = () => {
+    clickButton = () => {
         fetch(this.rt1Test)
         .then(resp=>resp.json())
         .then(jsonData=>{
@@ -50,15 +54,24 @@ export default class PokeContainer extends React.Component{
     }
 
     componentDidUpdate = () => {
-        console.log(this.state.pokemon)
+        this.rt1Test = `https://pokeapi.co/api/v2/location-area/${this.state.currentLocationID}`
+        //this.clickButton();
     }
 
     clickHandlerForPokeCard = () =>{
         console.log('clicked');
     }
+    
+    changeImgID = () => {
+        this.setState((prevState) => {
+            return {currentLocationID:prevState.currentLocationID+1}
+        },this.clickButton);
+    }
 
     render= () => {
         return(
+            <div onDrop={this.props.drop} onDragOver={this.props.dragPrevent}>
+            <button onClick={this.changeImgID}>NextLocation</button>
             <Row style={{backgroundColor:'red'}} >
             {this.state.pokemon.map( pokemon => {
                 return <PokeCard 
@@ -71,6 +84,7 @@ export default class PokeContainer extends React.Component{
                 />
             })}
             </Row>
+            </div>
         )
     }
 

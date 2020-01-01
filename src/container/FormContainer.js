@@ -46,13 +46,13 @@ export default class FormContainer extends React.Component{
     
     }
 
-    clickHandle = (e) => {
-        fetch(this.pokeUrl)
-        .then(resp => resp.json())
-        .then(jsonObj => {
-            console.log(jsonObj.data[0])
-        })
-    }
+    // clickHandle = (e) => {
+    //     fetch(this.pokeUrl)
+    //     .then(resp => resp.json())
+    //     .then(jsonObj => {
+    //         console.log(jsonObj)
+    //     })
+    // }
     
 
 
@@ -64,7 +64,7 @@ export default class FormContainer extends React.Component{
             <h1>{this.state.tempName}</h1>
             <img src={this.state.tempImg}/>
         
-            <button onClick={this.clickHandle}>Retrieve First</button>
+            {/* <button onClick={this.clickHandle}>Retrieve First</button> */}
 
             Test Post to BackEnd
 

@@ -6,7 +6,7 @@ const TrainerBox = (props)=>{
 
     let renderPokemon = () =>{
         return (<Row>{props.pokemon.map(pkmn =>{
-            debugger
+            {/* debugger */}
            return <PokeCard 
                     id={pkmn.name} 
                     clickHandle={(e)=>{}}

@@ -1,0 +1,104 @@
+import React from 'react';
+import { Form, Button, Card } from 'react-bootstrap';
+import axios from 'axios';
+
+
+export default class Registration extends React.Component{
+
+  
+    state = {
+        user: "",
+        pw: "",
+        pwConfirm: "",
+        errors: []
+    }
+    url = 'http://localhost:3000/api/v1/trainers'
+
+    postOptions = (name, password, confirmation) =>{ return {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json'
+        },
+        body: JSON.stringify({"trainer":{
+            name: name,
+            password: password,
+            password_confirmation: confirmation
+        }})}
+    }
+
+    handleSubmit =  (e) => {
+        console.log('here')
+        let name = e.target.elements.user.value;
+        let pw = e.target.elements.pw.value;
+        let pwC= e.target.elements.pwConfirm.value;
+        let options = this.postOptions(name,pw,pwC);
+        debugger
+
+        fetch(this.url,options)
+        .then(resp=>resp.json())
+        .then(json => {
+            console.log(json)
+        })
+
+        e.preventDefault();
+    }
+
+    changeHandle = (e) => {
+        // console.log(e.target.name)
+        this.setState({
+            [e.target.name]: e.target.value
+        })
+    }
+    render = () => {
+        return( <div>
+            <Card>
+            <h1>Sign up</h1><br/>
+            <Form onSubmit={this.handleSubmit}>
+                <Form.Group className='formComponent' controlID="formUser">
+                    <Form.Label>Trainer Name</Form.Label>
+                    <Form.Text className="text-muted">You will use your Trainer name to login</Form.Text>
+                    <Form.Control 
+                        name="user" 
+                        type="user" 
+                        placeholder="Enter a Trainer Name"
+                        value={this.state.user}
+                        onChange={this.changeHandle}
+                        required    
+                    />
+                </Form.Group>
+                
+                <Form.Group className='formComponent' controlID="formBasicPassword">
+                    <Form.Label>Password</Form.Label>
+                    <Form.Control 
+                        name="pw" 
+                        type="password" 
+                        placeholder="Enter password"
+                        value={this.state.pw}
+                        onChange={this.changeHandle} 
+                        required   
+                    />
+                </Form.Group>
+                <Form.Group className='formComponent' controlID="formPWConfirm">
+                    <Form.Label>Confirm Password</Form.Label>
+                    <Form.Control 
+                        name="pwConfirm" 
+                        type="password" 
+                        placeholder="Confirm password" 
+                        value={this.state.pwConfirm}
+                        onChange={this.changeHandle}
+                        required   
+                    />
+                </Form.Group>
+
+                <Button style={{marginBottom:'1%'}} variant="success" type='submit'>Sign Up</Button>
+                
+
+            </Form>
+            </Card>
+
+        </div>)
+    }
+
+
+}
