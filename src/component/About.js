@@ -9,7 +9,7 @@ const About = (props) => {
         <br/><br/><br/><br/>
             <Card>
                 Welcome {props.name ? props.name : 'trainer'}, to the Pok{e}Log! <br/>
-                The Pok{e}Log lets you track your Pok{e}dex progress while you play Pok{e}mon! <br/>
+                The Pok{e}Log lets you (sorta) track your Pok{e}dex progress while you play Pok{e}mon! <br/>
                 Easily accessible on any browser/mobile device, you can think about Pok{e}mon even while at work or school!   
             </Card>
             <br/>

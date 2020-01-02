@@ -16,7 +16,6 @@ export default class LeftSideMenu extends React.Component {
                     {this.props.loggedIn 
                     ? 
                     <div className='LoggedInButtons'>
-                    <Link to=''><Button variant='outline-primary' block>Settings</Button></Link>
                     {this.props.myBox 
                         ? <Link to='/mybox'><Button variant='outline-primary' block>My Box</Button></Link>
                         : <Button variant='outline-secondary' block disabled>My Box</Button>

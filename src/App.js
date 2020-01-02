@@ -43,16 +43,32 @@ export default class App extends React.Component{
     this.setState({
       loggedIn: false,
       currentUser: null,
-      currentUserID: null
+      currentUserID: null,
+      trainerBox: [],
+      boxID: null,
+      versionNum: 1
     });
   }
 
   navigateMyBox = (gameID, versionNum) => {
     this.setState({
       boxID: gameID,
-      version: parseInt(versionNum)
+      versionNum: parseInt(versionNum),
+      trainerBox: []
     })
     
+  }
+
+  populateBox = (pokemon) => {
+    let obj = {
+      id: pokemon.id,
+      name: pokemon.name,
+      img: pokemon.img
+    };
+    let arr = [...this.state.trainerBox, obj];
+    this.setState({
+      trainerBox: arr
+    })
   }
 
   // checkLoginStatus = () => {
@@ -74,10 +90,14 @@ export default class App extends React.Component{
   //   this.checkLoginStatus();
   // }
 
-  dragData = (e) => {
+  dragData = (e, pkmnID = null) => {
     // debugger
-    e.dataTransfer.setData("name", e.target.innerText.split(/\n/)[0])
-    e.dataTransfer.setData("img", e.target.innerHTML.split('src=\"')[1].split('\">')[0])
+    e.dataTransfer.setData("name", e.target.innerText.split(/\n/)[0]);
+    e.dataTransfer.setData("img", e.target.innerHTML.split('src=\"')[1].split('\">')[0]);
+    
+    if (pkmnID) {
+      e.dataTransfer.setData('id', pkmnID)
+    }
   }
 
   dragPrevent = (e) =>{
@@ -86,17 +106,40 @@ export default class App extends React.Component{
     }
 
   dropToDelete = (e) => {
+    // debugger;
+    if (e.dataTransfer.getData('id')){
+    let options = {
+      method: 'DELETE',
+      headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          '_method': 'DELETE'
+      }
+    };
+    let url = `http://localhost:3000/api/v1/pokemons/${e.dataTransfer.getData('id')}`;
     let index = this.state.trainerBox.findIndex(pkmn => pkmn.name === e.dataTransfer.getData('name'))
-    let newArr = [...this.state.trainerBox];
-    newArr.splice(index,1);
+      
+    fetch(url, options)
+    .then(resp => resp.json())
+    .then(json => {
+      console.log(json)
+      let newArr = [...this.state.trainerBox];
+      newArr.splice(index,1);
 
-    this.setState({
-      trainerBox: newArr
+      this.setState({
+        trainerBox: newArr
+      })
     })
+  }
+
+
+    
   }
 
   dropToTrainerBoxStart = (e) => {
     // debugger;
+    if (e.dataTransfer.getData('id')){}
+    else{
     let obj = {
       name: e.dataTransfer.getData('name'),
       img: e.dataTransfer.getData('img')
@@ -106,9 +149,11 @@ export default class App extends React.Component{
       showNickNameIface:true,
       tempObj: obj
     })
+  }
     
   }
  
+  
 
   closeNickNameIFace = () => {
     this.setState({
@@ -119,6 +164,7 @@ export default class App extends React.Component{
   setNickName = (name) => {
     let newObj = {
       img: this.state.tempObj.img,
+      pokemonName: this.state.tempObj.name,
       name: name
     }
     this.setState({
@@ -127,10 +173,35 @@ export default class App extends React.Component{
   }
 
   dragToTrainerBoxFinish = () => {
-    let tBox = [...this.state.trainerBox, this.state.tempObj];
-    this.setState({
-      trainerBox: tBox
+    // debugger;
+
+    let options = {
+      method: "POST",
+      headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+      },
+      body: JSON.stringify({
+          name: this.state.tempObj.name,
+          species: this.state.tempObj.pokemonName,
+          img: this.state.tempObj.img,
+          game_id: this.state.boxID
+      })
+    }
+
+    let pokeUrl = "http://localhost:3000/api/v1/pokemons";
+
+    fetch(pokeUrl, options)
+    .then(resp=>resp.json())
+    .then(json=> {
+      console.log(json);
+      let newObj = {...this.state.tempObj, id:json.data.id}
+      let tBox = [...this.state.trainerBox, newObj];
+      this.setState({
+        trainerBox: tBox
+      })
     })
+    
   }
 
   componentDidUpdate = () => {
@@ -165,19 +236,20 @@ export default class App extends React.Component{
         <Route path="/mybox" >
         {this.state.loggedIn ?  
         <Fragment>
-        <FormContainer />
         <PokeContainer 
           dragData={this.dragData} 
           dragPrevent={this.dragPrevent} 
           drop={this.dropToDelete}
-          version={this.state.versionNum}
+          regionID={this.state.versionNum}
           />
         <TrainerBox 
+          click={this.showPokemonPop}
           dragPrevent={this.dragPrevent} 
           drop={this.dropToTrainerBoxStart} 
           pokemon={this.state.trainerBox}
           dragData={this.dragData}
-          boxID={this.state.boxID}  
+          boxID={this.state.boxID} 
+          populateBox={this.populateBox} 
           />
           </Fragment>
           : <Redirect to='/login'/> 
@@ -201,6 +273,7 @@ export default class App extends React.Component{
       {this.state.showNickNameIface 
         ? <NamePokemonPopup pokemonName={this.state.tempName} close={this.closeNickNameIFace} nicknameAssign={this.setNickName} />
         : null}
+      
       
     </div>
   );
