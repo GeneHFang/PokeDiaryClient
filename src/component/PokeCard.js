@@ -1,13 +1,14 @@
 import React from 'react';
+import {Card} from 'react-bootstrap';
 
 
 const PokeCard = (props) => {
 
     return(
-        <div draggable onDragStart={props.dragData} className="draggable" id={`${props.id}-card`} onClick={props.clickHandle}>
-            {props.name.toUpperCase()}<br></br>
-            <img draggable={false} src={props.imgURL}/>
-        </div>
+        <Card bg="dark" text="white" draggable onDragStart={props.dragData} className="draggable" id={`${props.id}-card`} onClick={props.clickHandle}>
+            <Card.Title block>{props.name.toUpperCase()}</Card.Title>
+            <Card.Img draggable={false} src={props.imgURL}/>
+        </Card>
     )
 
 }

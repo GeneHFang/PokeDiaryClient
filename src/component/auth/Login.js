@@ -4,49 +4,52 @@ import { Form, Button, Card } from 'react-bootstrap';
 import {Redirect} from 'react-router-dom';
 
 
-export default class Registration extends React.Component{
+export default class Login extends React.Component{
 
   
     state = {
         user: "",
         pw: "",
-        pwConfirm: "",
         errors: []
     }
-    url = 'http://localhost:3000/api/v1/trainers'
+    url = 'http://localhost:3000/sessions'
 
-    postOptions = (name, password, confirmation) =>{ return {
+    postOptions = (name, password) =>{ return {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',
-            Accept: 'application/json'
+            Accept: 'application/json',
+            'Access-Control-Allow-Origin':'http://localhost:3000'
         },
         body: JSON.stringify({"trainer":{
             name: name,
-            password: password,
-            password_confirmation: confirmation
-        }})
-        }
+            password: password
+        }})}
     }
 
     handleSubmit =  (e) => {
         console.log('here')
         let name = e.target.elements.user.value;
         let pw = e.target.elements.pw.value;
-        let pwC= e.target.elements.pwConfirm.value;
-        let options = this.postOptions(name,pw,pwC);
+        let options = this.postOptions(name,pw);
         
 
         fetch(this.url,options)
-        .then(resp=> {
-            if (resp.ok) { console.log(resp.ok); return resp.json();}
-            else { throw new Error("Error! Either username already exists or your password confirmation does not match!");}
-            })
+        .then(resp=>  resp.json())
         .then(json => {
-            console.log(json);
-            this.props.loginFunc(json);
-        }).catch( error => {
-            alert(error);
+            
+            let jsonData = {
+                data: {
+                    id: json.trainer.id,
+                    attributes: {
+                        name: json.trainer.name
+                    }
+                }
+            }
+            console.log(jsonData);
+            this.props.loginFunc(jsonData);
+        }).catch( () => {
+            alert("Invalid trainer name or password");
         })
         // debugger
 
@@ -61,16 +64,16 @@ export default class Registration extends React.Component{
     }
     render = () => {
         if (this.props.loggedIn) {
-            return (<Redirect to='/'/>)
+            return (<Redirect to='/mygames'/>)
         }
         else {
         return( <div>
             <Card>
-            <h1>Sign up</h1><br/>
+            <h1>Log In</h1><br/>
             <Form onSubmit={this.handleSubmit}>
                 <Form.Group className='formComponent' controlID="formUser">
                     <Form.Label>Trainer Name</Form.Label>
-                    <Form.Text className="text-muted">You will use your Trainer name to login</Form.Text>
+                    {/* <Form.Text className="text-muted">You will use your Trainer name to login</Form.Text> */}
                     <Form.Control 
                         name="user" 
                         type="user" 
@@ -92,7 +95,7 @@ export default class Registration extends React.Component{
                         required   
                     />
                 </Form.Group>
-                <Form.Group className='formComponent' controlID="formPWConfirm">
+                {/*<Form.Group className='formComponent' controlID="formPWConfirm">
                     <Form.Label>Confirm Password</Form.Label>
                     <Form.Control 
                         name="pwConfirm" 
@@ -102,9 +105,9 @@ export default class Registration extends React.Component{
                         onChange={this.changeHandle}
                         required   
                     />
-                </Form.Group>
+                </Form.Group> */}
 
-                <Button style={{marginBottom:'1%'}} variant="success" type='submit'>Sign Up</Button>
+                <Button style={{marginBottom:'1%'}} variant="success" type='submit'>Log In</Button>
                 
 
             </Form>

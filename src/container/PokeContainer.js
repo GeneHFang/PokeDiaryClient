@@ -3,7 +3,8 @@ import PokeCard from '../component/PokeCard';
 import { Row } from 'react-bootstrap';
 
 
-
+//To do, pass in generation number and somehow get the location areas of all
+// post selected pokemon into API
 export default class PokeContainer extends React.Component{
 
     //Should change to URL that uses location ID
@@ -71,8 +72,9 @@ export default class PokeContainer extends React.Component{
     render= () => {
         return(
             <div onDrop={this.props.drop} onDragOver={this.props.dragPrevent}>
+                Pokemon Available In Current Location <br/>
             <button onClick={this.changeImgID}>NextLocation</button>
-            <Row style={{backgroundColor:'red'}} >
+            <Row style={{backgroundColor:'grey'}} >
             {this.state.pokemon.map( pokemon => {
                 return <PokeCard 
                     id={pokemon.pokemon.name} 

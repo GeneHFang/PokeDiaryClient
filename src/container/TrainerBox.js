@@ -1,6 +1,6 @@
 import React from 'react';
 import PokeCard from '../component/PokeCard';
-import { Row } from 'react-bootstrap';
+import { Row, Card } from 'react-bootstrap';
 
 const TrainerBox = (props)=>{
 
@@ -20,13 +20,12 @@ const TrainerBox = (props)=>{
     }
 
     return(
-        <div onDragOver={props.dragPrevent} 
-        onDrop={props.drop}
-        style={{borderColor: 'red', borderWidth:5}}>
-            Place to put pokemon <br/>
+        <Card bg="info" text="white" onDragOver={props.dragPrevent} 
+        onDrop={props.drop}>
+            <Card.Title block>Drag The Pokemon You Catch Here</Card.Title>
                 {renderPokemon()}
             <br/><br/><br/><br/><br/><br/><br/><br/>
-        </div>
+        </Card>
     )
 }
 

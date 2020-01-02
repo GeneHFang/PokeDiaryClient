@@ -13,9 +13,23 @@ export default class LeftSideMenu extends React.Component {
                     <Card.Title>Pok&eacute;Log</Card.Title>
                     <br/>
                     <Link to='/about'><Button variant='outline-primary' block>About</Button></Link>
+                    {this.props.loggedIn 
+                    ? 
+                    <div className='LoggedInButtons'>
+                    <Link to=''><Button variant='outline-primary' block>Settings</Button></Link>
+                    {this.props.myBox 
+                        ? <Link to='/mybox'><Button variant='outline-primary' block>My Box</Button></Link>
+                        : <Button variant='outline-secondary' block disabled>My Box</Button>
+                    }
+                    <Link to='/mygames'><Button variant='outline-primary' block>Games</Button></Link>
+                    <Link to='/login'><Button variant='outline-danger' block onClick={this.props.logOut}>Log Out</Button></Link>
+                    </div>
+                    :
+                    <div className='LoggedOutButtons'>
                     <Link to='/login'><Button variant='outline-primary' block>Log In</Button></Link>
                     <Link to='/signup'><Button variant='outline-primary' block>Sign Up</Button></Link>
-                    <Link to=''><Button variant='outline-primary' block>Settings</Button></Link>
+                    </div>
+                    }
                     </Card>
     
             </div>

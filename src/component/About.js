@@ -13,7 +13,7 @@ const About = (props) => {
                 Easily accessible on any browser/mobile device, you can think about Pok{e}mon even while at work or school!   
             </Card>
             <br/>
-            <Link to='/test'><Button on variant='success'>Let's go!</Button></Link>
+            <Link to={props.loggedIn ? '/mybox' : '/signup'}><Button on variant='success'>Let's go!</Button></Link>
         </div>
     )
 }
