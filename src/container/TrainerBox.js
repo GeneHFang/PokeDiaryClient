@@ -38,7 +38,7 @@ export default class TrainerBox extends React.Component{
 
     render = () => {
         return(
-            <Card bg="info" text="white" onDragOver={this.props.dragPrevent} 
+            <Card style={{padding:50}} bg="info" text="white" onDragOver={this.props.dragPrevent} 
             onDrop={this.props.drop}>
                 <Card.Title block>Drag The Pokemon You Catch Here</Card.Title>
                 <Card.Text block>Drag The Pokemon Back To Release</Card.Text>

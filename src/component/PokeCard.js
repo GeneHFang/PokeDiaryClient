@@ -5,7 +5,7 @@ import {Card} from 'react-bootstrap';
 const PokeCard = (props) => {
 
     return(
-        <Card bg="dark" text="white" draggable 
+        <Card bg="dark" text="white" draggable
             onDragStart={props.dragData} 
             className="draggable" 
             id={props.apiID ? props.apiID : 'availablePokemonCard'} 
