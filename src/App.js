@@ -7,7 +7,7 @@ import {BrowserRouter as Router, Route, Switch, Redirect} from 'react-router-dom
 //Local dependencies
 import PokeContainer from './container/PokeContainer';
 import TrainerBox from './container/TrainerBox';
-import NamePokemonPopup from './component/NamePokemonPopup';
+import NamePokemonPopup from './component/NamePokemonPo~pup';
 import LeftSideMenu from './component/LeftSideMenu';
 import About from './component/About';
 import Registration from './component/auth/Registration';
