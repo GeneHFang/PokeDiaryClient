@@ -4,6 +4,10 @@ import './App.css';
 import {Row, Col} from 'react-bootstrap';
 import {BrowserRouter as Router, Route, Switch, Redirect} from 'react-router-dom';
 
+//GraphQL depedencies
+import ApolloClient from 'apollo-boost';
+import {ApolloProvider} from 'react-apollo';
+
 //Local dependencies
 import PokeContainer from './container/PokeContainer';
 import TrainerBox from './container/TrainerBox';
@@ -14,6 +18,10 @@ import Registration from './component/auth/Registration';
 import Login from './component/auth/Login';
 import Games from './component/Games';
 
+//Apollo setup
+const client = new ApolloClient({
+  uri: 'http://localhost:4000/graphql',
+})
 
 //drag functionality needs to be put in here. 
 export default class App extends React.Component{
@@ -218,63 +226,65 @@ export default class App extends React.Component{
   //===================================================
     render(){
       return(
-      <div className="App" >
-        <Router>
-          <Row>
-            <Route path='/'> 
-              <Col>
-                <LeftSideMenu loggedIn={this.state.loggedIn} logOut={this.logOut} myBox={this.state.boxID}/>
+      <ApolloClient client={client}>
+        <div className="App" >
+          <Router>
+            <Row>
+              <Route path='/'> 
+                <Col>
+                  <LeftSideMenu loggedIn={this.state.loggedIn} logOut={this.logOut} myBox={this.state.boxID}/>
+                </Col>
+              </Route>
+              <Col xs={14} md={10} >
+                <Switch>
+                  <Route path="/about" component={() => <About loggedIn={this.state.loggedIn}/>} />
+                  <Route path="/signup" component={() => <Registration loginFunc={this.logIn}  loggedIn={this.state.loggedIn}/>} />
+                  <Route path="/login" component={() => <Login loginFunc={this.logIn} loggedIn={this.state.loggedIn}/>} />
+                  <Route path="/mygames" component={() => 
+                    <Games 
+                      loggedIn={this.state.loggedIn} 
+                      userID={this.state.currentUserID} 
+                      user={this.state.currentUser}
+                      navigateMyBox={this.navigateMyBox}
+                      boxID={this.state.boxID}  
+                      />
+                    } />
+                  <Route path="/mybox" >
+                    {this.state.loggedIn 
+                      ?  
+                        <Fragment>
+                          <PokeContainer 
+                            dragData={this.dragData} 
+                            dragPrevent={this.dragPrevent} 
+                            drop={this.dropToDelete}
+                            regionID={this.state.versionNum}
+                            />
+                          <TrainerBox 
+                            click={this.showPokemonPop}
+                            dragPrevent={this.dragPrevent} 
+                            drop={this.dropToTrainerBoxStart} 
+                            pokemon={this.state.trainerBox}
+                            dragData={this.dragData}
+                            boxID={this.state.boxID} 
+                            populateBox={this.populateBox} 
+                            />
+                        </Fragment>
+                      : 
+                        <Redirect to='/login'/> 
+                    }
+                  </Route>
+                </Switch>
               </Col>
-            </Route>
-            <Col xs={14} md={10} >
-              <Switch>
-                <Route path="/about" component={() => <About loggedIn={this.state.loggedIn}/>} />
-                <Route path="/signup" component={() => <Registration loginFunc={this.logIn}  loggedIn={this.state.loggedIn}/>} />
-                <Route path="/login" component={() => <Login loginFunc={this.logIn} loggedIn={this.state.loggedIn}/>} />
-                <Route path="/mygames" component={() => 
-                  <Games 
-                    loggedIn={this.state.loggedIn} 
-                    userID={this.state.currentUserID} 
-                    user={this.state.currentUser}
-                    navigateMyBox={this.navigateMyBox}
-                    boxID={this.state.boxID}  
-                    />
-                  } />
-                <Route path="/mybox" >
-                  {this.state.loggedIn 
-                    ?  
-                      <Fragment>
-                        <PokeContainer 
-                          dragData={this.dragData} 
-                          dragPrevent={this.dragPrevent} 
-                          drop={this.dropToDelete}
-                          regionID={this.state.versionNum}
-                          />
-                        <TrainerBox 
-                          click={this.showPokemonPop}
-                          dragPrevent={this.dragPrevent} 
-                          drop={this.dropToTrainerBoxStart} 
-                          pokemon={this.state.trainerBox}
-                          dragData={this.dragData}
-                          boxID={this.state.boxID} 
-                          populateBox={this.populateBox} 
-                          />
-                      </Fragment>
-                    : 
-                      <Redirect to='/login'/> 
-                  }
-                </Route>
-              </Switch>
-            </Col>
-          </Row>
-        </Router>
-          {this.state.showNickNameIface 
-            ? 
-              <NamePokemonPopup pokemonName={this.state.tempName} close={this.closeNickNameIFace} nicknameAssign={this.setNickName} />
-            : 
-              null
-          } 
-      </div>
+            </Row>
+          </Router>
+            {this.state.showNickNameIface 
+              ? 
+                <NamePokemonPopup pokemonName={this.state.tempName} close={this.closeNickNameIFace} nicknameAssign={this.setNickName} />
+              : 
+                null
+            } 
+        </div>
+      </ApolloClient>
       );
     }
 }
