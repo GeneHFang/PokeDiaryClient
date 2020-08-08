@@ -7,11 +7,13 @@ import {BrowserRouter as Router, Route, Switch, Redirect} from 'react-router-dom
 //GraphQL depedencies
 import ApolloClient from 'apollo-boost';
 import {ApolloProvider} from 'react-apollo';
+import {gql} from 'apollo-boost';
+import {graphql} from 'react-apollo';
 
 //Local dependencies
 import PokeContainer from './container/PokeContainer';
 import TrainerBox from './container/TrainerBox';
-import NamePokemonPopup from './component/NamePokemonPo~pup';
+import NamePokemonPopup from './component/NamePokemonPopup';
 import LeftSideMenu from './component/LeftSideMenu';
 import About from './component/About';
 import Registration from './component/auth/Registration';
@@ -22,9 +24,20 @@ import Games from './component/Games';
 const client = new ApolloClient({
   uri: 'http://localhost:4000/graphql',
 })
+//example query
+/*
+  const exQuery = gql`  
+    {
+      books {
+        name
+        id
+      }
+    }
+  `
+*/
 
 //drag functionality needs to be put in here. 
-export default class App extends React.Component{
+class App extends React.Component{
   
 
   //STATE (and setState functions)
@@ -226,7 +239,7 @@ export default class App extends React.Component{
   //===================================================
     render(){
       return(
-      <ApolloClient client={client}>
+      <ApolloProvider client={client}>
         <div className="App" >
           <Router>
             <Row>
@@ -284,7 +297,9 @@ export default class App extends React.Component{
                 null
             } 
         </div>
-      </ApolloClient>
+      </ApolloProvider>
       );
     }
-}
+};
+
+export default (App);
