@@ -1,76 +1,110 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { Form, Button, Card } from 'react-bootstrap';
 // import axios from 'axios';
 import {Redirect} from 'react-router-dom';
 
 
-export default class Login extends React.Component{
+//Apollo/GraphQL
+// import ApolloClient from 'apollo-boost';
+// import {ApolloProvider} from 'react-apollo';
+import {ApolloClient, InMemoryCache, ApolloProvider, useLazyQuery} from '@apollo/client';
+import {graphql} from 'react-apollo';
+import * as compose from 'lodash.flowright';
+import {getTrainerLoginQuery} from '../../graphql_queries/getQueries';
 
-  
-    state = {
-        user: "",
-        pw: "",
-        errors: []
-    }
-    url = 'http://localhost:3000/sessions'
+//Apollo setup
+const client = new ApolloClient({
+    uri: 'http://localhost:4000/graphql',
+    cache: new InMemoryCache()
+  })
 
-    postOptions = (name, password) =>{ return {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            'Access-Control-Allow-Origin':'http://localhost:3000'
-        },
-        body: JSON.stringify({"trainer":{
-            name: name,
-            password: password
-        }})}
-    }
+const Login = (props) => {
 
-    handleSubmit =  (e) => {
-        console.log('here')
-        let name = e.target.elements.user.value;
-        let pw = e.target.elements.pw.value;
-        let options = this.postOptions(name,pw);
-        
+    const [user, setUser] = useState("");
+    const [pw, setPW] = useState("");
+    const [errors, setErrors] = useState([]);
+    
+    // url = 'http://localhost:3000/sessions'
 
-        fetch(this.url,options)
-        .then(resp=>  resp.json())
-        .then(json => {
-            
+    // postOptions = (name, password) =>{ return {
+    //     method: "POST",
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //         Accept: 'application/json',
+    //         'Access-Control-Allow-Origin':'http://localhost:3000'
+    //     },
+    //     body: JSON.stringify({"trainer":{
+    //         name: name,
+    //         password: password
+    //     }})}
+    // }
+    const [getTrainer, {loading, data}] = useLazyQuery(getTrainerLoginQuery, {
+        onCompleted: data => {
+            console.log(data)
             let jsonData = {
                 data: {
-                    id: json.trainer.id,
+                    id: data.trainer_by_name[0].id,
                     attributes: {
-                        name: json.trainer.name
+                        name: data.trainer_by_name[0].name
                     }
                 }
-            }
-            console.log(jsonData);
-            this.props.loginFunc(jsonData);
-        }).catch( () => {
-            alert("Invalid trainer name or password");
-        })
+            };
+            props.loginFunc(jsonData);
+        }
+    });
+    
+
+    const handleSubmit = async (e) => {
+        getTrainer({variables: {name: user}});
+        //console.log(props)
         // debugger
+        //let name = user;
+
+       
+
+        // let pw = e.target.elements.pw.value;
+        // let options = this.postOptions(name,pw);
+        
+
+        // fetch(this.url,options)
+        // .then(resp=>  resp.json())
+        // .then(json => {
+            
+        //     let jsonData = {
+        //         data: {
+        //             id: json.trainer.id,
+        //             attributes: {
+        //                 name: json.trainer.name
+        //             }
+        //         }
+        //     }
+        //     console.log(jsonData);
+        //     this.props.loginFunc(jsonData);
+        // }).catch( () => {
+        //     alert("Invalid trainer name or password");
+        // })
+        // // debugger
 
         e.preventDefault();
     }
 
-    changeHandle = (e) => {
-        // console.log(e.target.name)
-        this.setState({
-            [e.target.name]: e.target.value
-        })
+    const changeHandle = (e) => {
+        // console.log(e.target.value)
+        setUser(e.target.value);
     }
-    render = () => {
-        if (this.props.loggedIn) {
-            return (<Redirect to='/mygames'/>)
-        }
-        else {
-        return( <div>
+    
+    if (props.loggedIn) {
+        return (<ApolloProvider client={client}><Redirect to='/mygames'/></ApolloProvider>)
+    }
+    else {
+    return( 
+        <ApolloProvider client={client}>
             <Card>
             <h1>Log In</h1><br/>
-            <Form onSubmit={this.handleSubmit}>
+            <Form onSubmit={(e)=>{
+                    e.preventDefault();
+                    handleSubmit(e);
+                }}>
                 <Form.Group className='formComponent' controlID="formUser">
                     <Form.Label>Trainer Name</Form.Label>
                     {/* <Form.Text className="text-muted">You will use your Trainer name to login</Form.Text> */}
@@ -78,13 +112,13 @@ export default class Login extends React.Component{
                         name="user" 
                         type="user" 
                         placeholder="Enter a Trainer Name"
-                        value={this.state.user}
-                        onChange={this.changeHandle}
+                        value={user}
+                        onChange={changeHandle}
                         required    
                     />
                 </Form.Group>
                 
-                <Form.Group className='formComponent' controlID="formBasicPassword">
+                {/* <Form.Group className='formComponent' controlID="formBasicPassword">
                     <Form.Label>Password</Form.Label>
                     <Form.Control 
                         name="pw" 
@@ -94,7 +128,7 @@ export default class Login extends React.Component{
                         onChange={this.changeHandle} 
                         required   
                     />
-                </Form.Group>
+                </Form.Group> */}
                 {/*<Form.Group className='formComponent' controlID="formPWConfirm">
                     <Form.Label>Confirm Password</Form.Label>
                     <Form.Control 
@@ -112,11 +146,11 @@ export default class Login extends React.Component{
 
             </Form>
             </Card>
-
-        </div>)
-        }
+        </ApolloProvider>
+        )
     }
-    
 
 
 }
+
+export default graphql(getTrainerLoginQuery, {name: 'trainer_by_name', options: ()=> ({variables:{ name: ""}})} )(Login);

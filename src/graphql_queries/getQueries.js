@@ -1,4 +1,4 @@
-import {gql} from 'apollo-boost';
+import {gql} from '@apollo/client';
 
 export const getPokemonsQuery = gql`
     {
@@ -6,5 +6,15 @@ export const getPokemonsQuery = gql`
             name
         }
     }    
+`;
+
+export const getTrainerLoginQuery = gql`
+    query ($name: String!){
+        trainer_by_name(name: $name){
+            name
+            id
+        }
+    }
+
 `;
 
