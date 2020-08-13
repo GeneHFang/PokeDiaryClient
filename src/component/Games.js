@@ -1,21 +1,37 @@
-import React, {Fragment} from 'react';
+import React, {Fragment, useState, useEffect} from 'react';
 import { Redirect } from 'react-router';
 import { Form, Row, Card, Button } from 'react-bootstrap';
 
 import GamePopUp from './GamePopUp';
 
-export default class Games extends React.Component{
 
-    state = {
-        games: [],
-        color: {},
-        showGameCard: false,
-        showGame: {},
-        createGame: false
+//Apollo/GraphQL
+// import ApolloClient from 'apollo-boost';
+// import {ApolloProvider} from 'react-apollo';
+import {ApolloClient, InMemoryCache, ApolloProvider, useLazyQuery} from '@apollo/client';
+import {graphql} from 'react-apollo';
+import * as compose from 'lodash.flowright';
+import { getGamesQuery } from '../graphql_queries/getQueries';
 
-    }
 
-    getVersion = {
+const Games = (props) => {
+    
+    const [gameList, setGameList] = useState([]);
+    const [color, setColor] = useState({});
+    const [showGameCard, toggleGameCard] = useState(false);
+    const [showGame, setShowGame] = useState({});
+    const [createGame, toggleCreateGame] = useState(false);
+
+    // state = {
+    //     games: [],
+    //     color: {},
+    //     showGameCard: false,
+    //     showGame: {},
+    //     createGame: false
+
+    // }
+
+    let getVersion = {
         1: 'Blue/Red/Yellow',
         2: 'Silver/Gold/Crystal',
         3: 'Sapphire/Ruby/Emerald',
@@ -25,167 +41,186 @@ export default class Games extends React.Component{
         7: 'Sun/Moon'
     }
 
-
-    componentDidMount = () => {
-        if (this.props.loggedIn)
-        {
-            let url = `http://localhost:3000/api/v1/trainers/${this.props.userID}`
-
-            fetch(url)
-            .then(resp=>resp.json())
-            .then(json=> {
-                this.setState({
-                    games: json.data.attributes.games
-                })
-            })
+    const [getGames, {loading, data}] = useLazyQuery(getGamesQuery, {
+        onCompleted: data => {
+            console.log("here",data);
+            setGameList([...gameList, ...data.game_by_trainer_id])
         }
+    })
+
+    useEffect(()=>{
+        if (props.loggedIn)
+        {
+            // console.log(props.getGamesQuery)
+            getGames({
+                variables: {
+                    trainerId: props.userID
+                }
+            })
+            // let url = `http://localhost:3000/api/v1/trainers/${props.userID}`
+
+            // fetch(url)
+            // .then(resp=>resp.json())
+            // .then(json=> {
+            //     setState({
+            //         games: json.data.attributes.games
+            //     })
+            // })
+        }
+    }, []);
+
+    // componentDidMount = () => {
+        
+    // }
+
+    const showGameOptions = (game) => {
+        setShowGame(game);
+        toggleGameCard(true);
+        // setState({
+        //     showGame: game,
+        //     showGameCard: true
+        // })
     }
 
-    showGameOptions = (game) => {
-        this.setState({
-            showGame: game,
-            showGameCard: true
-        })
-    }
-
-    hoverChange = (e) => {
+    const hoverChange = (e) => {
         // debugger
         if (e.target.className === 'card bg-primary text-white'){
             e.target.className = 'card bg-secondary text-white';
         }
     }
 
-    leaveChange = (e) => {
+    const leaveChange = (e) => {
         if (e.target.className === 'card bg-secondary text-white'){
             e.target.className = 'card bg-primary text-white';
         }
     }
 
-    closeHandle = () =>{
-        this.setState({
-            showGame: null,
-            showGameCard: false
-        })
+    const closeHandle = () =>{
+        setShowGame(null);
+        toggleGameCard(false);
+        // setState({
+        //     showGame: null,
+        //     showGameCard: false
+        // })
     }
 
     //create game
-    submitHandle = (e) => {
+    const submitHandle = (e) => {
         e.preventDefault();
         let version = e.target.elements.version.value;
         let nuzlocke = e.target.elements.nuzlockCheck.checked;
         
-        let options = {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json'
-            },
-            body: JSON.stringify({
-                'type_of_game': (nuzlocke  ? 'nuzlocke' : null ),
-                version: version,
-                'trainer_id': this.props.userID
-            })
-        };
-        let url = 'http://localhost:3000/api/v1/games';
+        // let options = {
+        //     method: "POST",
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         Accept: 'application/json'
+        //     },
+        //     body: JSON.stringify({
+        //         'type_of_game': (nuzlocke  ? 'nuzlocke' : null ),
+        //         version: version,
+        //         'trainer_id': props.userID
+        //     })
+        // };
+        // let url = 'http://localhost:3000/api/v1/games';
 
-        fetch(url, options)
-        .then(resp=>resp.json())
-        .then(json=>{
-            console.log(json);
-            let games = [...this.state.games];
-            let obj = { 
-                version: json.data.attributes.version,
-                'type_of_game': json.data.attributes['type_of_game'],
-                id: json.data.id,
-                'created_at': json.data.attributes['created_at'],
-                'updated_at': json.data.attributes['updated_at']
-            }
-            games.push(obj);
-            this.setState({
-                createGame: false,
-                games: games
-            })
-        })
+        // fetch(url, options)
+        // .then(resp=>resp.json())
+        // .then(json=>{
+        //     console.log(json);
+        //     let games = [...state.games];
+        //     let obj = { 
+        //         version: json.data.attributes.version,
+        //         'type_of_game': json.data.attributes['type_of_game'],
+        //         id: json.data.id,
+        //         'created_at': json.data.attributes['created_at'],
+        //         'updated_at': json.data.attributes['updated_at']
+        //     }
+        //     games.push(obj);
+        //     setState({
+        //         createGame: false,
+        //         games: games
+        //     })
+        // })
 
 
     }
 
    
 
-    handleNuzlocke = (game, type) => {
-        let options = {
-            method: "PATCH",
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-                '_method': 'PATCH'
-            },
-            body: JSON.stringify({
-                'type_of_game': (type == 'nuzlocke' ? null : 'nuzlocke' )
-            })
-        };
-        let url = `http://localhost:3000/api/v1/games/${game.id}`;
-        fetch(url,options)
-        .then(resp=>resp.json())
-        .then(json=>{
-            console.log(json);
-            let newArr = [...this.state.games];
-            let index = newArr.indexOf(game);
-            newArr[index] = {...this.state.games[index]};
-            newArr[index]['type_of_game'] = json.data.attributes['type_of_game'];
+    const handleNuzlocke = (game, type) => {
+        // let options = {
+        //     method: "PATCH",
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         Accept: 'application/json',
+        //         '_method': 'PATCH'
+        //     },
+        //     body: JSON.stringify({
+        //         'type_of_game': (type == 'nuzlocke' ? null : 'nuzlocke' )
+        //     })
+        // };
+        // let url = `http://localhost:3000/api/v1/games/${game.id}`;
+        // fetch(url,options)
+        // .then(resp=>resp.json())
+        // .then(json=>{
+        //     console.log(json);
+        //     let newArr = [...state.games];
+        //     let index = newArr.indexOf(game);
+        //     newArr[index] = {...state.games[index]};
+        //     newArr[index]['type_of_game'] = json.data.attributes['type_of_game'];
 
-            this.setState({
-                games: newArr,
-                showGame: null,
-                showGameCard: false
-            })
+        //     setState({
+        //         games: newArr,
+        //         showGame: null,
+        //         showGameCard: false
+        //     })
 
-        });
+        // });
     }
 
-    handleDelete = (game) => {
-        let options = {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-                '_method': 'DELETE'
-            }
-        };
-        let url = `http://localhost:3000/api/v1/games/${game.id}`;
-        fetch(url,options)
-        .then(resp=>resp.json())
-        .then(json=>{
-            console.log(json);
-            let newArr = [...this.state.games];
-            let index = newArr.indexOf(game);
-            newArr.splice(index, 1);
-            this.setState({
-                games: newArr,
-                showGame: null,
-                showGameCard: false
-            })
-        })
+    const handleDelete = (game) => {
+        // let options = {
+        //     method: 'DELETE',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         Accept: 'application/json',
+        //         '_method': 'DELETE'
+        //     }
+        // };
+        // let url = `http://localhost:3000/api/v1/games/${game.id}`;
+        // fetch(url,options)
+        // .then(resp=>resp.json())
+        // .then(json=>{
+        //     console.log(json);
+        //     let newArr = [...state.games];
+        //     let index = newArr.indexOf(game);
+        //     newArr.splice(index, 1);
+        //     setState({
+        //         games: newArr,
+        //         showGame: null,
+        //         showGameCard: false
+        //     })
+        // })
     }
 
-    games = () => {
-        return this.state.games.map( game => {
+    const games = () => {
+        return gameList.map( game => {
          return (
-            <Card bg='primary' text='white' onMouseOver={this.hoverChange} onMouseLeave={this.leaveChange} onClick={() => this.showGameOptions(game)}>
+            <Card bg='primary' text='white' onMouseOver={hoverChange} onMouseLeave={leaveChange} onClick={() => showGameOptions(game)}>
                 <Card.Title>Game {game.id}</Card.Title>
-                <Card.Text>Ver: {this.getVersion[parseInt(game.version)]}</Card.Text>
+                <Card.Text>Ver: {getVersion[parseInt(game.version)]}</Card.Text>
             </Card>
          );   
         })
     }
 
-    render = () => { 
         return (
-            this.props.loggedIn 
+            props.loggedIn 
             ? 
-                this.state.createGame 
+                createGame 
                 ? 
-                    <Form onSubmit={this.submitHandle}>
+                    <Form onSubmit={submitHandle}>
                         <h1>Create A New Game</h1>
                         <Form.Group className='formComponent' controlID="selectVersion">
                             <Form.Label>Choose a Generation</Form.Label>
@@ -207,22 +242,22 @@ export default class Games extends React.Component{
                     </Form>
                 :
                 <Fragment >
-                {this.props.user}'s Games<br/>
+                {props.user}'s Games<br/>
                 <Row >
-                    {this.games()}
+                    {games()}
                 </Row>
-                <Button onClick={()=>{this.setState({createGame:true})}} variant='success'>Create New Game</Button>
-                {this.state.showGameCard 
+                <Button onClick={()=>{toggleCreateGame(true)}} variant='success'>Create New Game</Button>
+                {showGameCard 
                     ? <GamePopUp 
-                        game={this.state.showGame} 
-                        user={this.props.user} 
-                        nuzlocke={this.handleNuzlocke} 
-                        delete={this.handleDelete}
-                        versionNum={this.state.showGame.version}
-                        version={this.getVersion[parseInt(this.state.showGame.version)]} 
-                        close={this.closeHandle}
-                        navigateMyBox={this.props.navigateMyBox}
-                        boxID={this.props.boxID}
+                        game={showGame} 
+                        user={props.user} 
+                        nuzlocke={handleNuzlocke} 
+                        delete={handleDelete}
+                        versionNum={showGame.version}
+                        version={getVersion[parseInt(showGame.version)]} 
+                        close={closeHandle}
+                        navigateMyBox={props.navigateMyBox}
+                        boxID={props.boxID}
                         />
                     : null
                 }
@@ -231,6 +266,13 @@ export default class Games extends React.Component{
             <Redirect to='/login' /> 
 
         )
-    }
+    
 
 }
+
+export default compose(
+    graphql(getGamesQuery, {name: "getGamesQuery", options: ()=> ({variables: {id: ""}})}),
+    // graphql(addGameQuery, {name: "addGameQuery"}),
+    // graphql(updateGameQuery, {name: "updateGameQuery"}),
+    // graphql(deleteGameQuery, {name: "deleteGameQuery"}),
+)(Games);
